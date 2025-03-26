@@ -47,9 +47,9 @@ for epoch in range(num_epochs):
         train_l = loss(net(features, w, b), labels)
         print(f'epoch {epoch + 1}, loss {float(train_l.mean()):f}')
 
-d2l.set_figsize()
-plt.scatter(features[:, (1)].detach().numpy(), labels.detach().numpy(), 1)
-plt.show()
+# d2l.set_figsize()
+# plt.scatter(features[:, (1)].detach().numpy(), labels.detach().numpy(), 1)
+# plt.show()
 
 print(f'w: {w.reshape(true_w.shape)},b: {b}')
 print(f'w的估计误差: {true_w - w.reshape(true_w.shape)}')
