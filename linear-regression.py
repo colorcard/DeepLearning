@@ -36,7 +36,7 @@ def sgd(params, lr, batch_size):
     with torch.no_grad():
         for param in params:
             param -= lr * param.grad / batch_size
-            param.grad.zero_()
+            param.grad.zero_() # 梯度清零
 
 for epoch in range(num_epochs):
     for X, y in data_iter(batch_size, features, labels):
