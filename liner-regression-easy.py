@@ -21,7 +21,9 @@ net = nn.Sequential(nn.Linear(2, 1)) # 2 features, 1 output
 net[0].weight.data.normal_(0, 0.01)
 net[0].bias.data.fill_(0)
 
-loss = nn.MSELoss()
+# loss = nn.MSELoss()
+loss = nn.SmoothL1Loss() # Huber loss
+
 trainer = torch.optim.SGD(net.parameters(), lr=0.03)
 
 num_epochs = 3
