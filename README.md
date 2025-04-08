@@ -1,8 +1,8 @@
 个人深度学习仓库。
 
 **线性神经网络：**
-1. [linear-regression.py](linear-regression.py)：线性回归模型。
-2. [liner-regression-easy.py](liner-regression-easy.py)：线性回归模型（API快速实现）。
+1. [linear-regression.py](code/linear-regression.py)：线性回归模型。
+2. [liner-regression-easy.py](code/liner-regression-easy.py)：线性回归模型（API快速实现）。
 
 **目前追踪：**
 - https://github.com/colorcard/DeepLearning
