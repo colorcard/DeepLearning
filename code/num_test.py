@@ -13,6 +13,7 @@ HIDDEN_SIZE = 128           # 隐藏层神经元数量（MLP 中间层维度）
 LEARNING_RATE = 1e-3        # 学习率（控制模型更新速度）
 EPOCHS = 5                  # 总训练轮数
 DATA_PATH = "../data"       # MNIST 数据保存路径
+MODEL_PATH = "../pth/mnist_mlp.pth"  # 模型参数保存路径
 SAVE = True             # 是否保存模型参数
 
 # 自动选择计算设备：优先使用 M1/M2/M3 芯片的 MPS 加速（Mac），否则使用 CPU
@@ -101,5 +102,5 @@ for epoch in range(1, EPOCHS + 1):
 
 # 保存模型参数到文件（如：mnist_mlp.pth）
 if SAVE:
-    torch.save(model.state_dict(), "../pth/mnist_mlp.pth")
-    print("✅ 模型已保存为 mnist_mlp.pth")
+    torch.save(model.state_dict(), MODEL_PATH)
+    print("✅ 模型已保存为 " + MODEL_PATH)
