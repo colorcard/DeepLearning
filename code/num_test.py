@@ -3,6 +3,7 @@ import torch
 from torch import nn                            # 神经网络模块
 from torchvision import datasets, transforms    # 常用数据集和预处理
 from torch.utils.data import DataLoader         # 批量数据加载器
+import matplotlib.pyplot as plt                 # 🎨 用于绘图（新增）
 
 # ========================
 # 🧩 配置区域（可快速调整）
@@ -11,7 +12,7 @@ BATCH_SIZE = 64             # 每批训练数据的大小
 TEST_BATCH_SIZE = 1000      # 每批测试数据的大小
 HIDDEN_SIZE = 128           # 隐藏层神经元数量（MLP 中间层维度）
 LEARNING_RATE = 1e-3        # 学习率（控制模型更新速度）
-EPOCHS = 5                  # 总训练轮数
+EPOCHS = 6                  # 总训练轮数
 DATA_PATH = "../data"       # MNIST 数据保存路径
 MODEL_PATH = "../pth/mnist_mlp.pth"  # 模型参数保存路径
 SAVE = True             # 是否保存模型参数
@@ -50,6 +51,8 @@ model = nn.Sequential(
     nn.Flatten(),                      # 将 28x28 图像展平为 784 向量
     nn.Linear(28 * 28, HIDDEN_SIZE),   # 第一个全连接层：输入784维，输出隐藏层维度
     nn.ReLU(),                         # 激活函数：引入非线性
+    nn.Linear(HIDDEN_SIZE, HIDDEN_SIZE),   # 第一个全连接层：输入784维，输出隐藏层维度
+    nn.ReLU(),                         # 激活函数：引入非线性
     nn.Linear(HIDDEN_SIZE, 10)         # 第二个全连接层：输出10类（数字0~9）
 ).to(device)                           # 把模型放到指定设备上（MPS 或 CPU）
 
@@ -59,9 +62,15 @@ loss_fn = nn.CrossEntropyLoss()
 # 定义优化器：Adam（自动调节学习率的优化算法）
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
+# 🔍 用于可视化：记录每轮的训练/测试损失与准确率
+train_losses = []
+test_losses = []
+test_accuracies = []
+
 # 定义训练过程（执行一次完整 epoch）
 def train(epoch):
     model.train()  # 设置模型为训练模式
+    running_loss = 0  # 当前 epoch 的总损失
     for batch, (X, y) in enumerate(train_loader):  # 遍历每一批数据
         X, y = X.to(device), y.to(device)  # 将数据移动到计算设备
 
@@ -72,8 +81,13 @@ def train(epoch):
         loss.backward()             # 反向传播：计算梯度
         optimizer.step()            # 执行参数更新（优化）
 
+        running_loss += loss.item()
+
         if batch % 100 == 0:  # 每隔100个 batch 打印一次当前损失
             print(f"Epoch {epoch} [{batch * len(X)}/{len(train_loader.dataset)}] Loss: {loss.item():.4f}")
+
+    avg_train_loss = running_loss / len(train_loader)
+    train_losses.append(avg_train_loss)  # 📈 记录训练损失
 
 # 定义测试过程（不会更新模型参数）
 def test():
@@ -95,6 +109,9 @@ def test():
     acc = 100. * correct / total      # 计算准确率（百分比）
     print(f"Test Accuracy: {acc:.2f}%, Test Loss: {avg_loss:.4f}\n")
 
+    test_losses.append(avg_loss)         # 📉 记录测试损失
+    test_accuracies.append(acc)          # ✅ 记录准确率
+
 # 训练主循环：重复执行训练 + 测试
 for epoch in range(1, EPOCHS + 1):
     train(epoch)  # 训练一轮
@@ -104,3 +121,24 @@ for epoch in range(1, EPOCHS + 1):
 if SAVE:
     torch.save(model.state_dict(), MODEL_PATH)
     print("✅ 模型已保存为 " + MODEL_PATH)
+
+# 🔧 可视化：训练 & 测试过程
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 2, 1)
+plt.plot(train_losses, label="Train Loss")
+plt.plot(test_losses, label="Test Loss")
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.title("Loss Curve")
+plt.legend()
+
+plt.subplot(1, 2, 2)
+plt.plot(test_accuracies, label="Test Accuracy", color="green")
+plt.xlabel("Epoch")
+plt.ylabel("Accuracy (%)")
+plt.title("Accuracy Curve")
+plt.legend()
+
+plt.tight_layout()
+plt.show()

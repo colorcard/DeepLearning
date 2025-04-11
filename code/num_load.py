@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 # 🔧 配置区域（可快速修改）
 # ========================
 HIDDEN_SIZE = 128                          # 隐藏层大小（必须与训练时一致）
-MODEL_PATH = "../pth/mnist_mlp.pth"        # 模型权重路径
+MODEL_PATH = "../pth/mnist_best_cnn.pth"        # 模型权重路径
 BATCH_SIZE = 1000                          # 测试批次大小
 DATA_PATH = "../data"                      # 测试数据存放路径
 
@@ -18,14 +18,32 @@ print(f"使用设备：{device}")
 # ========================
 # 🧠 构建模型（结构需保持一致）
 # ========================
+class CNNModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Conv2d(1, 32, 3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, 3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+
+            nn.Conv2d(64, 128, 3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+
+            nn.Flatten(),
+            nn.Linear(128 * 7 * 7, 256),
+            nn.ReLU(),
+            nn.Dropout(0.5),
+            nn.Linear(256, 10)
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
 def build_model():
-    model = nn.Sequential(
-        nn.Flatten(),
-        nn.Linear(28 * 28, HIDDEN_SIZE),
-        nn.ReLU(),
-        nn.Linear(HIDDEN_SIZE, 10)
-    )
-    return model
+    return CNNModel()
 
 # 加载模型权重
 def load_model(path=MODEL_PATH):
